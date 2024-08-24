@@ -31,8 +31,15 @@ class Player(arcade.Sprite):
         self.center_y += self.change_y
 
         # confine the player withing the screen boundaries
+        if self.left < 0:
+            self.left = 0
+        if self.right > SCREEN_WIDTH:
+            self.right = SCREEN_WIDTH
 
-
+        if self.bottom < 0:
+            self.bottom = 0
+        if self.top > SCREEN_HEIGHT:
+            self.top = SCREEN_HEIGHT
 
 
 class Wall(arcade.Sprite):
@@ -55,7 +62,7 @@ class MyGame(arcade.Window):
 
         # creating player
         self.player = None
-        self.score = 0
+        self.player_life = 100
 
         # setting up the wall
         self.wall = None
@@ -108,11 +115,23 @@ class MyGame(arcade.Window):
         # self.physics_engine.update()
         self.player_sprites_list.update()
 
+        # handle player collision with walls
+        hit_list = arcade.check_for_collision_with_list(self.player, self.wall_sprites_list)
+        # decrement player's life everytime they hit a wall
+        if len(hit_list) > 0 and self.player_life > 0:
+            self.player_life -= 1
+
+        # check if the player life is zero and end the game
+        if self.player_life == 0:
+            pass
+
     def on_draw(self):
         """Drawing all the sprites on the screen"""
         self.clear()
         self.player_sprites_list.draw()
         self.wall_sprites_list.draw()
+
+        arcade.draw_text(f"Life: {self.player_life}", 10, 580, arcade.color.WHITE, 16)
 
     def on_key_press(self, key, modifiers):
         """ control the player movements using arrow keys
